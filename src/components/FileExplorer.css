@@ -1,0 +1,55 @@
+.file-explorer {
+  /* Add your styles here */
+}
+
+.icon-grid {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.regular-apps {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.long-name-apps {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  margin-top: 20px;
+}
+
+.app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  text-align: center;
+}
+
+.app-icon .icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+}
+
+.app-icon .name {
+  font-size: 12px;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+}
+
+/* Adjust the grid layout for smaller screens */
+@media (max-width: 768px) {
+  .regular-apps {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .long-name-apps {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

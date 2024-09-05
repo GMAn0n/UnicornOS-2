@@ -1,0 +1,27 @@
+.notepad {
+  width: 400px;
+  height: 500px;
+}
+
+.notepad textarea {
+  width: 100%;
+  height: calc(100% - 40px);
+  resize: none;
+  border: 1px solid #000;
+  padding: 10px;
+  font-family: 'ChicagoFLF', 'Courier New', monospace;
+  background-color: #FFFFFF;
+}
+
+.notepad button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-family: 'ChicagoFLF', 'Courier New', monospace;
+  background-color: #DDDDDD;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.notepad button:active {
+  background-color: #BBBBBB;
+}

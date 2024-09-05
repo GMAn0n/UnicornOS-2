@@ -1,0 +1,32 @@
+.paint {
+  width: 80%;
+  height: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.paint .window-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 30px); /* Adjust based on your header height */
+}
+
+.paint-controls {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background-color: #f0f0f0;
+}
+
+.paint-controls input,
+.paint-controls button {
+  margin: 0 5px;
+}
+
+.paint canvas {
+  flex-grow: 1;
+  background-color: white;
+  cursor: crosshair;
+}
