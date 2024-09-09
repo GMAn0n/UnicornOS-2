@@ -1,27 +1,33 @@
 import React from 'react';
+import { ResizableWindow } from './ResizableWindow';
 import './Bluwumbuwurg.css';
 
 interface BluwumbuwurgProps {
   onClose: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  isIframeApp?: boolean;
 }
 
-export default function Bluwumbuwurg({ onClose }: BluwumbuwurgProps) {
+export default function Bluwumbuwurg({ onClose, className, style, isIframeApp }: BluwumbuwurgProps) {
   return (
-    <div className="window bluwumbuwurg">
-      <div className="window-header">
-        <span>Bluwumbuwurg</span>
-        <button onClick={onClose}>×</button>
-      </div>
-      <div className="window-content">
-        <iframe 
-          src="https://uwu.pro" 
+    <ResizableWindow
+      title="Bluwumbuwurg"
+      onClose={onClose}
+      appName="bluwumbuwurg"
+      className={className}
+      style={style}
+      initialWidth="80%"
+      initialHeight="80%"
+      isIframeApp={isIframeApp}
+    >
+      <div className="bluwumbuwurg-container">
+        <iframe
+          src="https://uwu.pro"
           title="Bluwumbuwurg"
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
+          className="bluwumbuwurg-iframe"
+        />
       </div>
-    </div>
+    </ResizableWindow>
   );
 }

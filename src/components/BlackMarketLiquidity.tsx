@@ -1,27 +1,33 @@
 import React from 'react';
+import { ResizableWindow } from './ResizableWindow';
 import './BlackMarketLiquidity.css';
 
 interface BlackMarketLiquidityProps {
   onClose: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  isIframeApp?: boolean;
 }
 
-export default function BlackMarketLiquidity({ onClose }: BlackMarketLiquidityProps) {
+export default function BlackMarketLiquidity({ onClose, className, style, isIframeApp }: BlackMarketLiquidityProps) {
   return (
-    <div className="window black-market-liquidity">
-      <div className="window-header">
-        <span>Black Market Liquidity Management</span>
-        <button onClick={onClose}>×</button>
+    <ResizableWindow
+      title="Black Market Liquidity"
+      onClose={onClose}
+      appName="blackmarketliquidity"
+      className={className}
+      style={style}
+      initialWidth="80%"
+      initialHeight="80%"
+      isIframeApp={isIframeApp}
+    >
+      <div className="black-market-liquidity-container">
+        <iframe
+          src="https://unity-lp.uwu-direct.pages.dev/"
+          title="Black Market Liquidity"
+          className="black-market-liquidity-iframe"
+        />
       </div>
-      <div className="window-content">
-        <iframe 
-          src="https://uwublkmktalphatestpreviewhos.uwu-direct.pages.dev/" 
-          title="Black Market Liquidity Management"
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
-      </div>
-    </div>
+    </ResizableWindow>
   );
 }

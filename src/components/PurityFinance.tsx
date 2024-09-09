@@ -1,27 +1,33 @@
 import React from 'react';
+import { ResizableWindow } from './ResizableWindow';
 import './PurityFinance.css';
 
 interface PurityFinanceProps {
   onClose: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  isIframeApp?: boolean;
 }
 
-export default function PurityFinance({ onClose }: PurityFinanceProps) {
+export default function PurityFinance({ onClose, className, style, isIframeApp }: PurityFinanceProps) {
   return (
-    <div className="window purity-finance">
-      <div className="window-header">
-        <span>Purity Finance</span>
-        <button onClick={onClose}>×</button>
-      </div>
-      <div className="window-content">
-        <iframe 
-          src="https://www.purity.finance/" 
+    <ResizableWindow
+      title="Purity Finance"
+      onClose={onClose}
+      appName="purityfinance"
+      className={className}
+      style={style}
+      initialWidth="80%"
+      initialHeight="80%"
+      isIframeApp={isIframeApp}
+    >
+      <div className="purity-finance-container">
+        <iframe
+          src="https://purity.finance"
           title="Purity Finance"
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
+          className="purity-finance-iframe"
+        />
       </div>
-    </div>
+    </ResizableWindow>
   );
 }

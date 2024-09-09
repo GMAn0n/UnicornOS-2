@@ -1,5 +1,10 @@
+import { jsx as _jsx } from "react/jsx-runtime";
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
-
-ReactDOM.render(<App />, document.getElementById('root'));
+import './index.css';
+var container = document.getElementById('root');
+if (!container)
+    throw new Error('Failed to find the root element');
+var root = createRoot(container);
+root.render(_jsx(React.StrictMode, { children: _jsx(App, {}) }));

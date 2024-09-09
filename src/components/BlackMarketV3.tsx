@@ -1,27 +1,33 @@
 import React from 'react';
+import { ResizableWindow } from './ResizableWindow';
 import './BlackMarketV3.css';
 
 interface BlackMarketV3Props {
   onClose: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  isIframeApp?: boolean;
 }
 
-export default function BlackMarketV3({ onClose }: BlackMarketV3Props) {
+export default function BlackMarketV3({ onClose, className, style, isIframeApp }: BlackMarketV3Props) {
   return (
-    <div className="window black-market-v3">
-      <div className="window-header">
-        <span>Black Market V3</span>
-        <button onClick={onClose}>×</button>
-      </div>
-      <div className="window-content">
-        <iframe 
-          src="https://unity-bug-fixes.uwublk-market.pages.dev/" 
+    <ResizableWindow
+      title="Black Market V3"
+      onClose={onClose}
+      appName="blackmarketv3"
+      className={className}
+      style={style}
+      initialWidth="80%"
+      initialHeight="80%"
+      isIframeApp={isIframeApp}
+    >
+      <div className="black-market-v3-container">
+        <iframe
+          src="https://unity-bug-fixes.uwublk-market.pages.dev/"
           title="Black Market V3"
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
+          className="black-market-v3-iframe"
+        />
       </div>
-    </div>
+    </ResizableWindow>
   );
 }

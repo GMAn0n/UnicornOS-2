@@ -31,3 +31,24 @@ export const KeplrWallet = {
     return null;
   },
 };
+
+export const connectWallet = async (): Promise<string | null> => {
+  // Implement your wallet connection logic here
+  // This is a placeholder implementation
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockAddress = '0x' + Math.random().toString(16).substr(2, 40);
+      resolve(mockAddress);
+    }, 1000);
+  });
+};
+
+export const disconnectWallet = async (): Promise<void> => {
+  // Implement your wallet disconnection logic here
+  // This is a placeholder implementation
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 500);
+  });
+};

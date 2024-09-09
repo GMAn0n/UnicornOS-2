@@ -1,27 +1,28 @@
 .notepad {
-  width: 400px;
-  height: 500px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.notepad textarea {
+.notepad-textarea {
+  flex-grow: 1;
   width: 100%;
-  height: calc(100% - 40px);
+  height: 100%;
   resize: none;
-  border: 1px solid #000;
+  border: none;
   padding: 10px;
   font-family: 'ChicagoFLF', 'Courier New', monospace;
-  background-color: #FFFFFF;
+  font-size: 14px;
 }
 
-.notepad button {
-  margin-top: 10px;
-  padding: 5px 10px;
-  font-family: 'ChicagoFLF', 'Courier New', monospace;
-  background-color: #DDDDDD;
-  border: 1px solid #000;
-  cursor: pointer;
+.notepad-textarea:focus {
+  outline: none;
 }
 
-.notepad button:active {
-  background-color: #BBBBBB;
+@media (max-width: 768px) {
+  .window.notepad.fullscreen-mobile {
+    width: 100vw !important;
+    height: 100vh !important;
+  }
 }

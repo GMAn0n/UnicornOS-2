@@ -1,93 +1,142 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ResizableWindow } from './ResizableWindow';
 import './Calendar.css';
 
 interface CalendarProps {
   onClose: () => void;
+  isFullscreenOnMobile?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  onFocus?: () => void;
 }
 
-interface Event {
+interface CalendarEvent {
   date: string;
-  description: string;
+  title: string;
 }
 
-export default function Calendar({ onClose }: CalendarProps) {
+export default function Calendar({ onClose, isFullscreenOnMobile = true, className, style, onFocus }: CalendarProps) {
+  const [windowSize, setWindowSize] = useState({ width: '400px', height: '500px' });
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [newEventTitle, setNewEventTitle] = useState('');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const loadEvents = useCallback(() => {
+  useEffect(() => {
     const savedEvents = localStorage.getItem('calendarEvents');
     if (savedEvents) {
       setEvents(JSON.parse(savedEvents));
     }
   }, []);
 
-  useEffect(() => {
-    loadEvents();
-  }, [loadEvents]);
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
 
-  const saveEvents = useCallback((newEvents: Event[]) => {
-    localStorage.setItem('calendarEvents', JSON.stringify(newEvents));
-  }, []);
+  const saveEvents = (updatedEvents: CalendarEvent[]) => {
+    localStorage.setItem('calendarEvents', JSON.stringify(updatedEvents));
+  };
 
-  const addEvent = (date: string) => {
-    const eventDescription = prompt('Enter event description:');
-    if (eventDescription) {
-      const newEvent: Event = { date, description: eventDescription };
+  const addEvent = () => {
+    if (selectedDate && newEventTitle) {
+      const newEvent: CalendarEvent = { date: selectedDate, title: newEventTitle };
       const updatedEvents = [...events, newEvent];
       setEvents(updatedEvents);
       saveEvents(updatedEvents);
+      setNewEventTitle('');
+      setSelectedDate(null);
     }
-  };
-
-  const getEventsForDate = (date: string) => {
-    return events.filter(event => event.date === date);
   };
 
   const renderCalendar = () => {
     const days = [];
-    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+      days.push(<div key={`empty-${i}`} className="empty-day"></div>);
     }
     for (let i = 1; i <= daysInMonth; i++) {
       const date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-      const dayEvents = getEventsForDate(date);
-      const isToday = new Date().toDateString() === new Date(date).toDateString();
+      const hasEvent = events.some(event => event.date === date);
       days.push(
-        <div key={i} className={`calendar-day ${isToday ? 'today' : ''}`} onClick={() => addEvent(date)}>
+        <div 
+          key={i} 
+          className={`day ${hasEvent ? 'has-event' : ''} ${date === selectedDate ? 'selected' : ''}`}
+          onClick={() => setSelectedDate(date)}
+        >
           {i}
-          {dayEvents.map((event, index) => (
-            <div key={index} className="event-indicator" title={event.description}>
-              •
-            </div>
-          ))}
         </div>
       );
     }
     return days;
   };
 
+  const eventsForSelectedDate = selectedDate 
+    ? events.filter(event => event.date === selectedDate)
+    : [];
+
+  useEffect(() => {
+    const updateSize = () => {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile && isFullscreenOnMobile) {
+        setWindowSize({ width: '100vw', height: '100vh' });
+      } else {
+        setWindowSize({ width: '400px', height: '500px' });
+      }
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [isFullscreenOnMobile]);
+
   return (
-    <div className="window calendar">
-      <div className="window-header">
-        <span>Calendar</span>
-        <button onClick={onClose}>×</button>
-      </div>
-      <div className="window-content">
-        <div className="calendar-controls">
-          <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}>Prev</button>
+    <ResizableWindow 
+      title="Calendar" 
+      onClose={onClose} 
+      appName="calendar"
+      initialWidth={400}
+      initialHeight={500}
+      isFullscreenOnMobile={isFullscreenOnMobile}
+      className={className}
+      style={style}
+      onFocus={onFocus}
+    >
+      <div className="calendar">
+        <div className="header">
+          <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}>{'<'}</button>
           <h2>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-          <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}>Next</button>
+          <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}>{'>'}</button>
         </div>
-        <div className="calendar-grid">
+        <div className="days-of-week">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="calendar-day day-name">{day}</div>
+            <div key={day} className="day-of-week">{day}</div>
           ))}
+        </div>
+        <div className="days-grid">
           {renderCalendar()}
         </div>
+        <div className="event-form">
+          <input
+            type="text"
+            value={newEventTitle}
+            onChange={(e) => setNewEventTitle(e.target.value)}
+            placeholder="Enter event title"
+          />
+          <button onClick={addEvent} disabled={!selectedDate || !newEventTitle}>Add Event</button>
+        </div>
+        {selectedDate && (
+          <div className="events-list">
+            <h3>Events for {selectedDate}:</h3>
+            {eventsForSelectedDate.length > 0 ? (
+              <ul>
+                {eventsForSelectedDate.map((event, index) => (
+                  <li key={index}>{event.title}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No events for this date.</p>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </ResizableWindow>
   );
 }

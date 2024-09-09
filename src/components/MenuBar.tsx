@@ -1,38 +1,43 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
 import './MenuBar.css';
 
 interface MenuBarProps {
   onFileExplorerClick: () => void;
   isWalletConnected: boolean;
   onWalletToggle: () => void;
+  isStickiesOpen: boolean;
+  onNewStickyClick: () => void;
+  version: string;
 }
 
-export function MenuBar({ onFileExplorerClick, isWalletConnected, onWalletToggle }: MenuBarProps) {
+export const MenuBar: React.FC<MenuBarProps> = ({ 
+  onFileExplorerClick, 
+  isWalletConnected, 
+  onWalletToggle, 
+  isStickiesOpen,
+  onNewStickyClick,
+  version
+}) => {
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
-
-  const toggleFileMenu = () => {
-    setIsFileMenuOpen(!isFileMenuOpen);
-  };
 
   return (
     <div className="menu-bar">
-      <div className="menu-icon">
-        <FontAwesomeIcon icon={faHome} color="#FFA500" />
-      </div>
-      <div className="menu-item" onClick={toggleFileMenu}>
-        File
+      <div className="menu-item">
+        <button onClick={() => setIsFileMenuOpen(!isFileMenuOpen)}>🍊 File</button>
         {isFileMenuOpen && (
           <div className="dropdown-menu">
-            <button onClick={onFileExplorerClick}>Open File Explorer</button>
+            <button onClick={onFileExplorerClick}>📁 File Explorer</button>
             <button onClick={onWalletToggle}>
-              {isWalletConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
+              {isWalletConnected ? '🔓 Disconnect Wallet' : '🔒 Connect Wallet'}
             </button>
+            {/* Add more file-related options here */}
           </div>
         )}
       </div>
-      {/* Add other menu items as needed */}
+      {isStickiesOpen && (
+        <button onClick={onNewStickyClick}>📝 New Sticky</button>
+      )}
+      <span className="version">UnicornOS {version}</span>
     </div>
   );
-}
+};
