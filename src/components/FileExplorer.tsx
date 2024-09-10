@@ -27,7 +27,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ onAppClick, onClose,
     { name: 'Terminal', icon: '💻' },
     { name: 'Stickies', icon: '🗒️' },
     { name: 'Tetris', icon: '🧱' },
-    { name: 'Unicorn Pinball', icon: '🎰' }, // Changed to slot machine emoji
+    // Removed Unicorn Pinball from this list
   ];
 
   return (

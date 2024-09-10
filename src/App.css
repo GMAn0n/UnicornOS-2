@@ -12,19 +12,20 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .desktop {
-  flex: 1;
   position: relative;
+  width: 100vw;
+  height: calc(100vh - 40px); /* Subtract menu bar height */
   overflow: hidden;
-  padding-top: 40px; /* Add padding to account for the menu bar */
-  z-index: 1;
+  padding-top: 40px; /* Add this line to account for the menu bar */
 }
 
 .hard-disk-icon {
-  position: absolute;
-  top: 20px;
+  position: fixed;
+  top: 50px;
   right: 20px;
   display: flex;
   flex-direction: column;
@@ -34,7 +35,7 @@
   cursor: pointer;
   color: #000;
   font-family: 'ChicagoFLF', 'Courier New', monospace;
-  z-index: 10;
+  z-index: 10; /* Reverted to original value */
   padding: 10px;
   transition: transform 0.3s;
 }
@@ -65,12 +66,12 @@
 }
 
 .app-container {
-  position: fixed;
-  top: 40px; /* Adjust based on your menu bar height */
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1100; /* Increase this value */
+  overflow: visible; /* Allow windows to overflow */
   pointer-events: none; /* This allows clicks to pass through to elements below */
 }
 
@@ -90,6 +91,10 @@
   padding: 5px;
   display: flex;
   align-items: center;
+  width: 100%; /* Ensure full width */
+  position: fixed; /* Fix the position */
+  top: 0; /* Align to the top */
+  left: 0; /* Align to the left */
 }
 
 .window {
@@ -105,36 +110,46 @@
   }
 
   .window.iframe-app {
-    top: 40px !important; /* Ensure iframe apps start below the menu bar */
+    width: 80vw;
+    height: 80vh;
+    max-width: 90vw;
+    max-height: 90vh;
+    /* Remove the following lines:
+    top: 50% !important;
     left: 50% !important;
-    transform: translateX(-50%);
-    height: calc(80vh - 40px) !important; /* Adjust height to account for menu bar */
+    transform: translate(-50%, -50%) !important;
+    position: fixed !important;
+    */
   }
 }
 
 /* Full viewport on mobile */
 @media (max-width: 768px) {
+  .menu-bar {
+    padding: 5px 0; /* Remove horizontal padding */
+  }
+
+  .app-container {
+    top: 40px; /* Adjust this value to match your menu bar height */
+    padding-top: 10px; /* Add some padding below the menu bar */
+  }
+
   .window:not(.fileexplorer) {
     width: 100% !important;
-    height: calc(100% - 40px) !important;
-    top: 40px !important;
+    height: calc(100% - 50px) !important; /* Adjust for menu bar height + padding */
+    top: 50px !important; /* Position below menu bar + padding */
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
   }
 
-  .hard-disk-icon {
-    top: auto;
-    bottom: 20px;
-    right: 20px;
-    z-index: 999; /* Just below the file explorer on mobile */
+  .file-explorer {
+    top: 50px; /* Position below menu bar + padding */
+    height: calc(100% - 50px); /* Adjust height */
   }
 
-  .file-explorer {
-    top: 40px;
-    left: 0;
-    width: 100%;
-    height: calc(100% - 40px);
+  .desktop {
+    padding-top: 50px; /* Adjust padding to account for menu bar + extra space */
   }
 }
 
@@ -158,6 +173,23 @@
   z-index: 1400; /* Ensure the close button is above everything else */
   padding: 5px;
   line-height: 1;
+  position: relative; /* Ensure z-index works */
+  touch-action: manipulation; /* Optimize for touch interactions */
+}
+
+@media (max-width: 768px) {
+  .close-button {
+    padding: 10px; /* Increase touch target size on mobile */
+  }
+
+  .window-header {
+    z-index: 1300; /* Ensure it's above the window content */
+  }
+
+  .resizable-window-header {
+    position: relative; /* Ensure z-index works */
+    z-index: 1300; /* Ensure it's above the window content */
+  }
 }
 
 .window-content {
@@ -210,23 +242,16 @@
 /* Global rule for iframe apps on desktop */
 @media (min-width: 769px) {
   .window.iframe-app {
-    width: 80vw !important;
-    height: 80vh !important;
+    width: 80vw;
+    height: 80vh;
+    max-width: 90vw;
+    max-height: 90vh;
+    /* Remove the following lines:
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     position: fixed !important;
-  }
-
-  .window.iframe-app .window-content {
-    width: 100%;
-    height: calc(100% - 30px); /* Adjust based on your header height */
-  }
-
-  .window.iframe-app iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+    */
   }
 }
 
@@ -242,15 +267,18 @@
   pointer-events: none;
 }
 
-.window.desktop-offset {
-  margin-top: 30px;
+.stickies-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
 }
 
-@media (min-width: 769px) {
-  .window.desktop-offset {
-    top: 50px !important;
-    transform: translate(-50%, 0) !important;
-  }
+.stickies-container > * {
+  pointer-events: auto;
 }
 
 /* ... (keep any additional styles) */
@@ -269,3 +297,40 @@
 }
 
 /* ... (keep other styles) */
+
+.resizable-window {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.resizable-window-header {
+  background-color: #000080;
+  color: #fff;
+  padding: 5px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resizable-window-content {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+/* ... (rest of the styles) */
+
+.stickies-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.stickies-container > * {
+  pointer-events: auto;
+}

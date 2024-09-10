@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ResizableWindow } from './ResizableWindow';
+import React, { useState, useEffect, useCallback } from 'react';
 import './MemojiMinesweeper.css';
 import { ref, onValue, set, push, DataSnapshot } from 'firebase/database';
 import { database } from '../firebaseConfig';
 
 interface MemojiMinesweeperProps {
   onClose: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-  isIframeApp?: boolean;
 }
 
 interface Cell {
@@ -28,40 +24,14 @@ const GRID_SIZE = 18;
 const MINE_COUNT = 40;
 const EMOJIS = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'];
 
-export default function MemojiMinesweeper({ onClose, className, style, isIframeApp }: MemojiMinesweeperProps) {
+export default function MemojiMinesweeper({ onClose }: MemojiMinesweeperProps) {
   const [grid, setGrid] = useState<Cell[][]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [windowSize, setWindowSize] = useState({ width: 800, height: 800 });
   const [gameWon, setGameWon] = useState<boolean>(false);
-
-  const calculateWindowSize = useCallback(() => {
-    if (isMobile) {
-      return { width: window.innerWidth, height: window.innerHeight - 60 }; // Adjust for mobile
-    } else {
-      const cellSize = 30;
-      const padding = 40;
-      const width = GRID_SIZE * cellSize + padding;
-      const height = GRID_SIZE * cellSize + padding + 100; // Extra space for controls
-      return { width, height };
-    }
-  }, [isMobile]);
-
-  useEffect(() => {
-    setWindowSize(calculateWindowSize());
-  }, [calculateWindowSize, isMobile]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      setWindowSize(calculateWindowSize());
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [calculateWindowSize]);
 
   const createInitialGrid = useCallback(() => {
     const newGrid: Cell[][] = Array(GRID_SIZE).fill(null).map(() =>
@@ -237,62 +207,51 @@ export default function MemojiMinesweeper({ onClose, className, style, isIframeA
   };
 
   return (
-    <ResizableWindow 
-      title="Multiplayer Memoji Minesweeper" 
-      onClose={onClose} 
-      appName="memojiminesweeper"
-      className={`${className} desktop-offset`}
-      style={style}
-      initialWidth={windowSize.width}
-      initialHeight={windowSize.height}
-      isIframeApp={isIframeApp}
-    >
-      <div className="memoji-minesweeper">
-        {error && <div className="error-message">{error}</div>}
-        <div className="game-controls">
-          <div className="players">
-            {players.map((player) => (
-              <div key={player.id} className="player" style={{ color: player.color }}>
-                Player {player.id === playerId ? '(You)' : ''}
-              </div>
+    <div className="memoji-minesweeper">
+      {error && <div className="error-message">{error}</div>}
+      <div className="game-controls">
+        <div className="players">
+          {players.map((player) => (
+            <div key={player.id} className="player" style={{ color: player.color }}>
+              Player {player.id === playerId ? '(You)' : ''}
+            </div>
+          ))}
+        </div>
+        {gameOver && <div className="game-over">Game Over! 💣</div>}
+        {gameWon && <div className="game-won">You Win! 🎉</div>}
+        <button onClick={startNewGame} className="new-game-button">New Game</button>
+      </div>
+      {grid.length > 0 ? (
+        <div className="grid-container">
+          <div className="grid" style={{ 
+            gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+            fontSize: isMobile ? '10px' : '16px'
+          }}>
+            {grid.map((row, rowIndex) => (
+              row.map((cell, colIndex) => (
+                <button
+                  key={`${rowIndex}-${colIndex}`}
+                  className={`cell ${cell.isRevealed ? 'revealed' : ''} ${gameOver && cell.isMine ? 'mine' : ''}`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  style={{ backgroundColor: cell.playerId ? players.find(p => p.id === cell.playerId)?.color : '' }}
+                  disabled={gameOver || gameWon}
+                >
+                  {cell.isRevealed
+                    ? cell.isMine
+                      ? '💣'
+                      : cell.neighborMines > 0
+                      ? cell.neighborMines
+                      : cell.emoji
+                    : ''}
+                </button>
+              ))
             ))}
           </div>
-          {gameOver && <div className="game-over">Game Over! 💣</div>}
-          {gameWon && <div className="game-won">You Win! 🎉</div>}
-          <button onClick={startNewGame} className="new-game-button">New Game</button>
         </div>
-        {grid.length > 0 ? (
-          <div className="grid-container">
-            <div className="grid" style={{ 
-              gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-              fontSize: isMobile ? '10px' : '16px'
-            }}>
-              {grid.map((row, rowIndex) => (
-                row.map((cell, colIndex) => (
-                  <button
-                    key={`${rowIndex}-${colIndex}`}
-                    className={`cell ${cell.isRevealed ? 'revealed' : ''} ${gameOver && cell.isMine ? 'mine' : ''}`}
-                    onClick={() => handleCellClick(rowIndex, colIndex)}
-                    style={{ backgroundColor: cell.playerId ? players.find(p => p.id === cell.playerId)?.color : '' }}
-                    disabled={gameOver || gameWon}
-                  >
-                    {cell.isRevealed
-                      ? cell.isMine
-                        ? '💣'
-                        : cell.neighborMines > 0
-                        ? cell.neighborMines
-                        : cell.emoji
-                      : ''}
-                  </button>
-                ))
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div>Loading game board...</div>
-        )}
-      </div>
-    </ResizableWindow>
+      ) : (
+        <div>Loading game board...</div>
+      )}
+    </div>
   );
 }
 

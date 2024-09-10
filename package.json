@@ -6,11 +6,15 @@
         "@types/node": "^16.18.0",
         "@types/react": "^18.0.0",
         "@types/react-dom": "^18.0.0",
+        "@types/react-resizable": "^3.0.8",
+        "@types/react-rnd": "^8.0.0",
         "firebase": "^9.22.0",
         "re-resizable": "^6.9.9",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-draggable": "^4.4.5"
+        "react-draggable": "^4.4.5",
+        "react-resizable": "^3.0.5",
+        "react-rnd": "^10.3.7"
     },
     "devDependencies": {
         "css-loader": "^6.7.2",

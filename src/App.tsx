@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { MenuBar } from './components/MenuBar';
 import { FileExplorer } from './components/FileExplorer';
+import { ResizableWindow } from './components/ResizableWindow';
 import Stickies from './components/Stickies';
 import Bluwumbuwurg from './components/Bluwumbuwurg';
 import UwUScape from './components/UwUScape';
@@ -25,12 +26,13 @@ function App() {
   const [showFileExplorer, setShowFileExplorer] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [openApps, setOpenApps] = useState<string[]>([]);
-  const [stickiesKey, setStickiesKey] = useState(0);
+  const [stickiesCount, setStickiesCount] = useState(0);
   const [showStickies, setShowStickies] = useState(false);
   const [zIndex, setZIndex] = useState(1000);
 
   const handleNewSticky = useCallback(() => {
     setShowStickies(true);
+    setStickiesCount(prevCount => prevCount + 1);
   }, []);
 
   const handleAppClick = (appName: string) => {
@@ -39,11 +41,15 @@ function App() {
     }
     if (appName === 'Stickies') {
       setShowStickies(true);
+      handleNewSticky();
     }
   };
 
   const handleAppClose = (appName: string) => {
     setOpenApps(openApps.filter(app => app !== appName));
+    if (appName === 'Stickies') {
+      setShowStickies(false);
+    }
   };
 
   const renderApp = (appName: string) => {
@@ -67,13 +73,35 @@ function App() {
       case 'Calcuwulator':
         return <Calcuwulator {...commonProps} />;
       case 'Calendar':
-        return <Calendar {...commonProps} />;
+        return (
+          <Calendar
+            {...commonProps}
+            onClose={() => handleAppClose('Calendar')} // Ensure we're using the correct app name
+          />
+        );
       case 'Notepad':
         return <Notepad {...commonProps} />;
       case 'Paint':
         return <Paint {...commonProps} />;
       case 'Memoji Minesweeper':
-        return <MemojiMinesweeper {...commonProps} />;
+        return (
+          <ResizableWindow
+            title="Multiplayer Memoji Minesweeper"
+            onClose={() => handleAppClose(appName)}
+            appName={appName.toLowerCase().replace(/\s+/g, '-')}
+            initialWidth={400}
+            initialHeight={500}
+            isIframeApp={false}
+            onFocus={() => {
+              const newZIndex = zIndex + openApps.length;
+              setZIndex(newZIndex);
+              const updatedApps = openApps.filter(app => app !== appName);
+              setOpenApps([...updatedApps, appName]);
+            }}
+          >
+            <MemojiMinesweeper onClose={() => handleAppClose(appName)} />
+          </ResizableWindow>
+        );
       case 'Bluwumbuwurg':
         return <Bluwumbuwurg {...commonProps} />;
       case 'UwUScape':
@@ -95,10 +123,17 @@ function App() {
       case 'Terminal':
         return <Terminal {...commonProps} />;
       case 'Stickies':
-        return null; // We'll render Stickies separately
+        return showStickies ? (
+          <Stickies
+            key={stickiesCount}
+            onClose={() => handleAppClose('Stickies')}
+            onNewSticky={handleNewSticky}
+            stickiesCount={stickiesCount}
+          />
+        ) : null;
       case 'Tetris':
         return <Tetris {...commonProps} />;
-      case 'Unicorn Pinball': // Add this case
+      case 'Unicorn Pinball':
         return <UnicornPinball {...commonProps} />;
       default:
         return null;
@@ -134,15 +169,6 @@ function App() {
         <div className="app-container">
           {openApps.map(appName => renderApp(appName))}
         </div>
-        {showStickies && (
-          <Stickies
-            onClose={() => {
-              setShowStickies(false);
-              handleAppClose('Stickies');
-            }}
-            onNewSticky={handleNewSticky} // Add this line
-          />
-        )}
       </div>
     </div>
   );

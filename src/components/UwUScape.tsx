@@ -9,7 +9,7 @@ interface UwUScapeProps {
   isIframeApp?: boolean;
 }
 
-export default function UwUScape({ onClose, className, style, isIframeApp }: UwUScapeProps) {
+export default function UwUScape({ onClose, className, style }: UwUScapeProps) {
   return (
     <ResizableWindow
       title="UwUScape"
@@ -17,9 +17,9 @@ export default function UwUScape({ onClose, className, style, isIframeApp }: UwU
       appName="uwuscape"
       className={className}
       style={style}
-      initialWidth="80%"
-      initialHeight="80%"
-      isIframeApp={isIframeApp}
+      initialWidth={800}
+      initialHeight={600}
+      isIframeApp={true}
     >
       <div className="uwuscape-container">
         <iframe
